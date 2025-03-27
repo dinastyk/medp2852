@@ -1,0 +1,57 @@
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+.jack-in-the-box {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+
+.box {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: #b5651d;
+    border: 5px solid #6d3d0f;
+    bottom: 0;
+    left: 10px;
+}
+
+
+.lid {
+    position: absolute;
+    width: 100px;
+    height: 20px;
+    background: #8b4513;
+    border: 3px solid #5a2e0b;
+    top: -20px;
+    transform-origin: bottom;
+    transition: transform 0.5s ease-in-out;
+}
+
+
+
+.jack {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    font-size: 40px;
+    transition: transform 0.5s ease-in-out;
+}
+
+
+.jack-in-the-box:hover .lid {
+    transform: rotateX(120deg);
+}
+
+.jack-in-the-box:hover .jack {
+    transform: translateX(-50%) scale(1.2);
+}

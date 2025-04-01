@@ -1,0 +1,271 @@
+h1{
+    text-align: center;
+}
+
+
+body {
+    font-family: 'Press Start 2P', cursive;
+    background-color: #2E1A47;
+    color: #E0B3FF;
+    margin: 0;
+    padding: 0;
+}
+h1, h2, h3, h4, h5, h6, p, ul, ol, li {
+    font-family: 'Press Start 2P';  
+}
+
+nav {
+    background: #6A0DAD;
+    padding: 10px;
+    text-align: center;
+}
+
+nav ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    margin: 0 15px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #E0B3FF;
+    font-size: 18px;
+}
+
+nav ul li a:hover {
+    color: #FFD700;
+}
+
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.welcome, .features {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+
+.about-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+}
+
+.about-container h2 {
+    color: #FFD700;
+}
+
+
+button {
+    background-color: #A32CC4;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-family: 'Press Start 2P', cursive;
+    color: white;
+    cursor: pointer;
+    border-radius: 25px;
+    box-shadow: 5px 5px 0px black;
+}
+
+button:hover {
+    background-color: #8A24A2;
+}
+
+
+footer {
+    text-align: center;
+    background: #6A0DAD;
+    padding: 10px;
+    color: white;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
+.floating-paws {
+    position: fixed;
+    bottom: 10px;
+    left: 10px;
+    z-index: 1000;
+}
+
+.paw {
+    width: 50px;
+    height: 50px;
+    background-image: url('images/paw-icon.png');  
+    background-size: contain;
+    background-repeat: no-repeat;
+    position: absolute;
+    animation: floatAround 10s ease-in-out infinite;
+    cursor: pointer;
+}
+
+.paw1 {
+    left: 0;
+    animation-delay: 0s;
+}
+
+.paw2 {
+    left: 70px;
+    animation-delay: 2s;
+}
+
+.paw3 {
+    left: 140px;
+    animation-delay: 4s;
+}
+
+.paw4 {
+    left: 210px;
+    animation-delay: 6s;
+}
+
+/* Paw Animation */
+@keyframes floatAround {
+    0% {
+        transform: translateY(0) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-20px) rotate(90deg);
+    }
+    50% {
+        transform: translateY(0) rotate(180deg);
+    }
+    75% {
+        transform: translateY(20px) rotate(270deg);
+    }
+    100% {
+        transform: translateY(0) rotate(360deg);
+    }
+}
+
+
+.paw:hover {
+    transform: scale(1.2);
+}
+
+
+.paw:active {
+    animation: none; 
+    transform: scale(1.1);
+    transition: all 0.3s ease;
+}
+
+
+.paw1:hover, .paw2:hover, .paw3:hover, .paw4:hover {
+    animation: none;
+    transition: all 0.3s ease;
+    transform: scale(1.5) translateY(-30px);
+}
+
+
+.paw1:active, .paw2:active, .paw3:active, .paw4:active {
+    animation: none;
+    background-color: transparent;
+    transform: scale(1.2) translateY(-20px);
+    transition: all 0.3s ease;
+}
+
+
+.paw:hover {
+    cursor: pointer;
+}
+@keyframes moveClouds {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(100%); }
+}
+
+
+.testimonials {
+    padding: 40px 20px;
+    background-color: #3A1C60; 
+    color: #fff;
+    text-align: center;
+}
+
+.testimonials h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-family: 'Press Start 2P', cursive;
+}
+
+
+.testimonial {
+    margin: 20px 0;
+}
+
+.testimonial-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+}
+
+.testimonial-item:hover {
+    transform: scale(1.05);
+}
+
+
+.client-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+
+.testimonial-content {
+    max-width: 600px;
+    text-align: left;
+}
+
+.testimonial-text {
+    font-size: 1.2rem;
+    font-style: italic;
+    margin-bottom: 10px;
+}
+
+.client-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+
+footer {
+    text-align: center;
+    background: #6A0DAD;
+    padding: 10px;
+    color: white;
+    position: relative; 
+    margin-top: auto;
+    width: 100%;
+    clear: both; 
+}
+
+.about-page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
+}
+.about-page main {
+    flex: 1;
+}

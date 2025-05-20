@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photography | Dinasty Kelly</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="images/dklogo.jpg">
+</head>
+<body id="photography-body">
+    <header>
+        <div class="container">
+          <div class="logo"><a href="game.html">Dinasty Kelly</a></div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="photography.html" class="active">Photography</a></li>
+                    <li><a href="resume_projects.html">Resume/Projects</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-content">
+        <section id="photo-gallery-section">
+            <h1>My Photography</h1>
+            <p class="intro-paragraph">A collection of moments, stories, and perspectives captured through my lens. Click on an image to view it larger.</p>
+
+            <h2>Portraits</h2>
+            <div class="photo-grid portraits-grid">
+                <figure data-index="0">
+                    <img src="images/fireworks.jpg" alt="Portrait 1" data-lightbox-src="images/fireworks.jpg" data-title="Jan 2025">
+                    <figcaption>Fireworks</figcaption>
+                </figure>
+                <figure data-index="1">
+                    <img src="images/aging.JPG" alt="Portrait 2" data-lightbox-src="images/aging.JPG" data-title="May 2024">
+                    <figcaption>Generations</figcaption>
+                </figure>
+                <figure data-index="2">
+                    <img src="images/keh.jpg" alt="Kehlani" data-lightbox-src="images/keh.jpg" data-title="Sep 2021">
+                    <figcaption>Kehlani</figcaption>
+                </figure>
+                <figure data-index="3">
+                    <img src="images/destin.JPG" alt="Destin" data-lightbox-src="images/destin.JPG" data-title="Nov 2024">
+                    <figcaption>Destin</figcaption>
+                </figure>
+                <figure data-index="4">
+                    <img src="images/kids.JPG" alt="Kids" data-lightbox-src="images/kids.JPG" data-title="Feb 2024">
+                    <figcaption>Kids Getting Married</figcaption>
+                </figure>
+
+                <figure data-index="5">
+                  <img src="images/telfi.JPG" alt="telfie" data-lightbox-src="images/telfi.JPG" data-title=" July 2021">
+                  <figcaption>Telfie</figcaption>
+              </figure>
+            </div>
+
+            <h2>Landscapes</h2>
+            <div class="photo-grid landscapes-grid">
+                <figure data-index="0">
+                    <img src="images/prsunset.jpg" alt="Bliss" data-lightbox-src="images/prsunset.jpg" data-title="Aug 2019">
+                    <figcaption>Bliss</figcaption>
+                </figure>
+                <figure data-index="1">
+                    <img src="images/ducks.jpg" alt="Feeding" data-lightbox-src="images/ducks.jpg" data-title="Sep 2024">
+                    <figcaption>Feeding</figcaption>
+                </figure>
+                <figure data-index="2">
+                    <img src="images/feathers.jpg" alt="Feathers" data-lightbox-src="images/feathers.jpg" data-title="March 2019">
+                    <figcaption>Feathers</figcaption>
+                </figure>
+                <figure data-index="3">
+                  <img src="images/hotaire.JPG" alt="Hot air balloon"data-lightbox-src="images/hotaire.JPG" data-title="Nov 2024">
+                  <figcaption>Hot Air Balloon Ride</figcaption>
+              </figure>
+              <figure data-index="4">
+                <img src="images/prmami.jpg" alt="mami" data-lightbox-src="images/prmami.jpg" data-title="Aug 2019">
+                <figcaption>Culture</figcaption>
+            </figure>
+            <figure data-index="5">
+              <img src="images/pamu.JPG" alt="Pamukkale" data-lightbox-src="images/pamu.JPG" data-title="Nov 2024">
+              <figcaption>Pamukkale</figcaption>
+          </figure>
+          
+            </div>
+         </section>
+    </main>
+
+    
+
+    <div id="lightbox-overlay">
+        <button id="lightbox-close">&times;</button>
+        <button id="lightbox-prev">&lt;</button>
+        <img id="lightbox-image" src="" alt="Large Image">
+        <button id="lightbox-next">&gt;</button>
+        <div id="lightbox-caption"></div>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="js/script.js"></script>
+
+    
+</body>
+
+<footer>
+  <div class="container">
+      <p>&copy; <span id="current-year"></span> Dinasty Kelly. All Rights Reserved.</p>
+  </div>
+</footer>
+</html>

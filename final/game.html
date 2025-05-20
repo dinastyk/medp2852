@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NBCU Code Cadet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #1a202c; /* Tailwind gray-900 */
+            color: #e2e8f0; /* Tailwind gray-300 */
+            margin: 0;
+            overflow: hidden; /* Prevent scrollbars from canvas */
+        }
+        .game-container {
+            background-color: #2d3748; /* Tailwind gray-800 */
+            border-radius: 0.75rem; /* Tailwind rounded-lg */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem; /* Tailwind p-6 */
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+        }
+        canvas {
+            /* background-color: #0f172a; /* Tailwind slate-900 - Will be drawn over by background */
+            border-radius: 0.5rem; /* Tailwind rounded-md */
+            display: block;
+            margin: 1rem auto;
+        }
+        .button {
+            font-family: 'Press Start 2P', cursive;
+            background-color: #4f46e5; /* Tailwind indigo-600 */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-transform: uppercase;
+            margin-top: 1rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .button:hover {
+            background-color: #4338ca; /* Tailwind indigo-700 */
+        }
+        .button:active {
+            background-color: #3730a3; /* Tailwind indigo-800 */
+        }
+        .info-bar {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.125rem; /* Tailwind text-lg */
+            font-weight: 600; /* Tailwind font-semibold */
+            margin-bottom: 1rem;
+            padding: 0 0.5rem;
+        }
+        .title {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.75rem;
+            color: #60a5fa; /* Tailwind blue-400 */
+            margin-bottom: 1rem;
+        }
+        .message-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.75);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            border-radius: 0.75rem; /* Match game-container */
+        }
+        .message-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.5rem;
+            color: #f87171; /* Tailwind red-400 */
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+        .score-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 1.25rem;
+            color: #34d399; /* Tailwind green-400 */
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 640px) {
+            .title { font-size: 1.25rem; }
+            .info-bar { font-size: 1rem; }
+            .button { font-size: 0.875rem; padding: 0.5rem 1rem; }
+            .game-container { padding: 1rem; }
+            .message-text { font-size: 1.2rem; }
+            .score-text { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container" id="gameContainer">
+        <h1 class="title">NBCU Code Cadet</h1>
+        <div class="info-bar">
+            <span id="score">Score: 0</span>
+            <span id="lives">Lives: ❤️❤️❤️</span>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <button id="underCanvasBackButton" class="button">Go Back to Site</button>
+        <div id="messageOverlay" class="message-overlay" style="display: none;">
+            <p id="messageText" class="message-text"></p>
+            <p id="finalScoreText" class="score-text"></p>
+            <button id="actionButton" class="button">Start Game</button>
+            <button id="overlayBackButton" class="button">Go Back to Site</button>
+        </div>
+    </div>
+
+    <script>
+        // Get DOM elements
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score');
+        const livesDisplay = document.getElementById('lives');
+        const gameContainer = document.getElementById('gameContainer');
+        const messageOverlay = document.getElementById('messageOverlay');
+        const messageText = document.getElementById('messageText');
+        const finalScoreText = document.getElementById('finalScoreText');
+        const underCanvasBackButton = document.getElementById('underCanvasBackButton'); // Get the new button
+        const overlayBackButton = document.getElementById('overlayBackButton');
+
+
+
+        // Game variables
+        let score = 0;
+        let lives = 3;
+        let gameRunning = false;
+        let animationFrameId;
+
+        // Player (character) properties
+        const player = {
+            width: 50, height: 70, x: 0, y: 0, speed: 25, dx: 0,
+            skinColor: '#A0522D', hairColor: '#333333',
+            gownColor: '#4B0082', capColor: '#8b5cf6'
+        };
+
+        // Falling items properties
+        const itemTypes = {
+            good: [
+                { text: '{ }', color: '#34d399', points: 10 }, { text: 'JS', color: '#facc15', points: 15 },
+                { text: 'PY', color: '#60a5fa', points: 15 }, { text: '☕', color: '#f472b6', points: 5 }
+            ],
+            bad: [ { text: '🐛', color: '#f87171', points: -1 }, { text: '🐞', color: '#fb923c', points: -1 } ]
+        };
+        const items = [];
+        const itemRadius = 20;
+        const itemFallSpeed = 2;
+        const itemSpawnInterval = 1200;
+        let lastSpawnTime = 0;
+
+        // Function to draw the 30 Rock background
+        function drawBackground() {
+            // Base sky color (dark blue/purple gradient for night)
+            const skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, '#0f172a'); // Tailwind slate-900 (top)
+            skyGradient.addColorStop(0.7, '#1e1b4b'); // Darker indigo/purple
+            skyGradient.addColorStop(1, '#312e81');   // Lighter indigo/purple (bottom horizon)
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Building Colors
+            const buildingColorDark = '#2d3748'; // Tailwind gray-800
+            const buildingColorLight = '#4a5568'; // Tailwind gray-700
+            const windowColor = '#cbd5e0'; // Tailwind gray-400 (lit windows)
+
+            // Simplified 30 Rock Shape
+            // Main tower
+            const towerWidth = canvas.width * 0.35;
+            const towerHeight = canvas.height * 0.85;
+            const towerX = canvas.width / 2 - towerWidth / 2;
+            const towerY = canvas.height - towerHeight;
+
+            ctx.fillStyle = buildingColorDark;
+            ctx.fillRect(towerX, towerY, towerWidth, towerHeight);
+
+            // Vertical lines for texture/segments
+            ctx.strokeStyle = buildingColorLight;
+            ctx.lineWidth = 2;
+            for (let i = 1; i < 4; i++) {
+                const lineX = towerX + (towerWidth / 4) * i;
+                ctx.beginPath();
+                ctx.moveTo(lineX, towerY);
+                ctx.lineTo(lineX, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Top "crown" or setbacks - very simplified
+            const crownHeight = towerHeight * 0.15;
+            const crownWidth = towerWidth * 0.8;
+            ctx.fillStyle = buildingColorLight;
+            ctx.fillRect(towerX + (towerWidth - crownWidth)/2 , towerY, crownWidth, crownHeight);
+            
+            const topCrownHeight = crownHeight * 0.5;
+            const topCrownWidth = crownWidth * 0.7;
+            ctx.fillStyle = buildingColorDark;
+            ctx.fillRect(towerX + (towerWidth - topCrownWidth)/2, towerY, topCrownWidth, topCrownHeight);
+
+
+            // Add some "lit windows" - randomly placed small rectangles
+            ctx.fillStyle = windowColor;
+            const numWindows = 30; // Number of windows
+            for (let i = 0; i < numWindows; i++) {
+                // Ensure windows are within the main tower structure, avoiding the very top
+                const winX = towerX + Math.random() * (towerWidth - 10) + 5;
+                const winY = towerY + crownHeight + Math.random() * (towerHeight - crownHeight - 20) ; // Start below crown
+                if (winY < canvas.height - 10) { // Ensure not too low
+                     ctx.fillRect(winX, winY, Math.random() * 3 + 2, Math.random() * 4 + 3); // Tiny windows
+                }
+            }
+
+            // "NBC" letters - very simplified, could be improved with more detail or a specific font if available
+            ctx.fillStyle = '#e11d48'; // Reddish color for NBC logo
+            ctx.font = `bold ${canvas.height * 0.05}px 'Press Start 2P'`; // Using game font for simplicity
+            ctx.textAlign = 'center';
+            // Position letters near the top of the main tower section, below the crown
+            const letterY = towerY + crownHeight + (canvas.height * 0.07);
+            // ctx.fillText("N", towerX + towerWidth * 0.3, letterY);
+            // ctx.fillText("B", towerX + towerWidth * 0.5, letterY);
+            // ctx.fillText("C", towerX + towerWidth * 0.7, letterY);
+            // Simplified single "NBC" text
+            ctx.fillText("NBC", towerX + towerWidth * 0.5, letterY);
+
+
+            // Ground/Street level - a simple dark band
+            ctx.fillStyle = '#1a202c'; // Darker than building
+            ctx.fillRect(0, canvas.height - 20, canvas.width, 20); // 20px high street area
+        }
+
+
+        function resizeCanvas() {
+            const containerWidth = gameContainer.clientWidth - 3 * 16; // p-6 = 1.5rem * 2
+            canvas.width = Math.min(containerWidth, 550);
+            canvas.height = canvas.width * 0.75;
+            player.x = canvas.width / 2 - player.width / 2;
+            player.y = canvas.height - player.height - 10;
+            // Redraw background on resize if game not running, or it will be drawn in gameLoop
+            if (!gameRunning) {
+                drawBackground(); // Draw background first
+                drawPlayer();     // Then player on top
+            }
+        }
+
+        function drawPlayer() {
+            const centerX = player.x + player.width / 2;
+            const headRadius = player.width * 0.25;
+            const bodyWidth = player.width * 0.7;
+            const bodyHeight = player.height * 0.55;
+            const headY = player.y + headRadius + player.height * 0.1;
+
+            ctx.fillStyle = player.gownColor;
+            ctx.fillRect(centerX - bodyWidth / 2, headY + headRadius * 0.8, bodyWidth, bodyHeight);
+            ctx.fillStyle = player.skinColor;
+            ctx.beginPath(); ctx.arc(centerX, headY, headRadius, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = player.hairColor;
+            const hairPuffRadius = headRadius * 0.8;
+            ctx.beginPath(); ctx.arc(centerX - headRadius * 0.7, headY - headRadius * 0.5, hairPuffRadius, Math.PI, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + headRadius * 0.7, headY - headRadius * 0.5, hairPuffRadius, Math.PI, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX, headY - headRadius * 0.8, hairPuffRadius, Math.PI * 1.2, Math.PI * 1.8, true); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX - headRadius * 1.1, headY, hairPuffRadius * 0.9, Math.PI * 0.5, Math.PI * 1.5); ctx.fill();
+            ctx.beginPath(); ctx.arc(centerX + headRadius * 1.1, headY, hairPuffRadius * 0.9, Math.PI * 1.5, Math.PI * 0.5); ctx.fill();
+            const capSize = headRadius * 1.5; const capX = centerX - capSize / 2; const capY = headY - headRadius * 1.2;
+            ctx.fillStyle = player.capColor;
+            ctx.beginPath(); ctx.moveTo(capX - capSize*0.2, capY); ctx.lineTo(capX + capSize*1.2, capY); ctx.lineTo(capX + capSize*1.2, capY - capSize*0.1); ctx.lineTo(capX - capSize*0.2, capY - capSize*0.1); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = '#fde047'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(centerX, capY - capSize*0.1); ctx.lineTo(centerX, capY - capSize*0.1 - capSize*0.3); ctx.stroke();
+        }
+
+        function movePlayer() {
+            player.x += player.dx;
+            if (player.x < 0) player.x = 0;
+            if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+        }
+
+        function drawItem(item) {
+            ctx.font = `${itemRadius * 1.5}px 'Press Start 2P'`; ctx.fillStyle = item.color;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(item.text, item.x, item.y);
+        }
+
+        function spawnItem() {
+            const isBad = Math.random() < 0.35;
+            const typeArray = isBad ? itemTypes.bad : itemTypes.good;
+            const specificItem = typeArray[Math.floor(Math.random() * typeArray.length)];
+            items.push({
+                x: Math.random() * (canvas.width - itemRadius * 2) + itemRadius, y: -itemRadius,
+                text: specificItem.text, color: specificItem.color, points: specificItem.points,
+                speed: itemFallSpeed + Math.random() * 1.5, isBad: isBad
+            });
+        }
+
+        function updateItems() {
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i]; item.y += item.speed;
+                const playerLeft = player.x; const playerRight = player.x + player.width;
+                const playerTop = player.y; const playerBottom = player.y + player.height;
+                if (item.y + itemRadius > playerTop && item.y - itemRadius < playerBottom &&
+                    item.x + itemRadius > playerLeft && item.x - itemRadius < playerRight) {
+                    if (item.isBad) {
+                        lives--; updateLivesDisplay();
+                        gameContainer.classList.add('animate-shake');
+                        setTimeout(() => gameContainer.classList.remove('animate-shake'), 300);
+                    } else { score += item.points; updateScoreDisplay(); }
+                    items.splice(i, 1);
+                    if (lives <= 0) { gameOver(); return; }
+                } else if (item.y - itemRadius > canvas.height) { items.splice(i, 1); }
+            }
+        }
+
+        function updateScoreDisplay() { scoreDisplay.textContent = `Score: ${score}`; }
+        function updateLivesDisplay() { livesDisplay.innerHTML = `Lives: ${'❤️'.repeat(Math.max(0,lives))}${'🖤'.repeat(Math.max(0,3-lives))}`; }
+
+        function gameLoop(currentTime) {
+            if (!gameRunning) return;
+            // Clear canvas is now handled by drawBackground filling the whole canvas
+            // ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            drawBackground(); // Draw background first
+            if (currentTime - lastSpawnTime > itemSpawnInterval) { spawnItem(); lastSpawnTime = currentTime; }
+            movePlayer(); drawPlayer();
+            updateItems(); items.forEach(drawItem);
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function startGame() {
+            score = 0; lives = 3; items.length = 0;
+            updateScoreDisplay(); updateLivesDisplay();
+            gameRunning = true; messageOverlay.style.display = 'none';
+            resizeCanvas(); // This will call drawBackground and drawPlayer
+            lastSpawnTime = performance.now();
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(gameLoop); // Start the loop
+        }
+        
+        function gameOver() {
+            gameRunning = false; if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            messageText.textContent = "NBCU LATER!";
+            finalScoreText.textContent = `Your Score: ${score}`;
+            actionButton.textContent = "Play Again?";
+            messageOverlay.style.display = 'flex';
+        }
+
+        function keyDown(e) {
+            if (e.key === 'ArrowRight' || e.key === 'Right') player.dx = player.speed;
+            else if (e.key === 'ArrowLeft' || e.key === 'Left') player.dx = -player.speed;
+        }
+        function keyUp(e) {
+            if (e.key === 'ArrowRight' || e.key === 'Right' || e.key === 'ArrowLeft' || e.key === 'Left') player.dx = 0;
+        }
+
+        let touchStartX = null; const touchSensitivity = 0.2;
+        canvas.addEventListener('touchstart', (e) => { if (!gameRunning) return; e.preventDefault(); touchStartX = e.touches[0].clientX; }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => {
+            if (!gameRunning || touchStartX === null) return; e.preventDefault();
+            const diffX = e.touches[0].clientX - touchStartX; player.x += diffX * touchSensitivity;
+            if (player.x < 0) player.x = 0; if (player.x + player.width > canvas.width) player.x = canvas.width - player.width;
+            touchStartX = e.touches[0].clientX;
+        }, { passive: false });
+        canvas.addEventListener('touchend', (e) => { if (!gameRunning) return; e.preventDefault(); touchStartX = null; }, { passive: false });
+
+        window.addEventListener('resize', () => {
+            resizeCanvas(); // This will call drawBackground and drawPlayer if not running
+        });
+
+        const styleSheet = document.createElement("style"); styleSheet.type = "text/css";
+        styleSheet.innerText = `@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 75% { transform: translateX(-5px); } } .animate-shake { animation: shake 0.3s ease-in-out; }`;
+        document.head.appendChild(styleSheet);
+
+        underCanvasBackButton.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        // Event listener for the button in the message overlay
+        overlayBackButton.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        messageText.textContent = "Welcome NBCU Code Cadet!"; finalScoreText.textContent = "Catch code, avoid bugs!";
+        actionButton.textContent = "Start Game"; messageOverlay.style.display = 'flex';
+        actionButton.addEventListener('click', () => { if (!gameRunning) startGame(); });
+        document.addEventListener('keydown', keyDown); document.addEventListener('keyup', keyUp);
+        
+
+        // Initial draw
+        resizeCanvas(); // This sets initial size and calls drawBackground and drawPlayer
+    </script>
+</body>
+</html>
